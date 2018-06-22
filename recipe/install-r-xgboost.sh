@@ -1,19 +1,24 @@
 #!/bin/bash
 
-. activate "${PREFIX}"
+set -e
+set -x
 
-if [[ ${OSTYPE} == msys ]]; then
-  if [[ ${r_implementation} == mro-base ]]; then
-    PREFIX=$(cygpath -u ${PREFIX})
-    # TODO :: Shouldn't our Rtools package set this?
-    export BINPREF=${PREFIX}/Rtools/mingw_64/bin/
-  fi
-fi
+# KLUDGE: manually activate the build environment toolchain to pick up
+# the correct compilers flags
+unset CFLAGS
+unset CXXFLAGS
+. ${BUILD_PREFIX}/etc/conda/activate.d/activate-gcc_linux-64.sh
+. ${BUILD_PREFIX}/etc/conda/activate.d/activate-gxx_linux-64.sh
 
-pushd ${SRC_DIR}/R-package
-  # Remove src/Makevars.win because it says:
-  # This file is only used for windows compilation from github
-  # It will be replaced with Makevars.in for the CRAN version
-  # rm src/Makevars.win
-  ${R} CMD INSTALL --build .
-popd
+mkdir -p build
+cd build
+
+LIBRT=$(find ${BUILD_PREFIX} -name "librt.so")
+cmake \
+    -DCMAKE_INSTALL_PREFIX=${PREFIX} \
+    -DUSE_CUDA=ON \
+    -DR_LIB=ON    \
+    -DCUDA_rt_LIBRARY=${LIBRT} \
+    ..
+make -j${CPU_COUNT} ${VERBOSE_CM}
+make install -j${CPU_COUNT} ${VERBOSE_CM}
