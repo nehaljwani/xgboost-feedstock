@@ -1,21 +1,15 @@
 #!/bin/bash
 
-# http://xgboost.readthedocs.io/en/latest/build.html
+set -e
+set -x
 
-if [[ ${OSTYPE} == msys ]]; then
-  if [[ "${ARCH}" == "32" ]]; then
-    # SSE2 is used and we get called from MSVC
-    # CPython so 32-bit GCC needs realignment.
-    export CC="gcc -mstackrealign"
-    export CXX="g++ -mstackrealign"
-  fi
-  cp make/mingw64.mk config.mk
-else
-  cp make/config.mk config.mk
-fi
+mkdir -p build
+cd build
 
-# XGBoost uses its own compilation flags.
-echo "ADD_LDFLAGS = ${LDFLAGS}" >> config.mk
-echo "ADD_CFLAGS = ${CFLAGS}" >> config.mk
-
-make -j${CPU_COUNT}
+LIBRT=$(find ${BUILD_PREFIX} -name "librt.so")
+cmake \
+    -DCMAKE_INSTALL_PREFIX=${PREFIX} \
+    -DUSE_CUDA=ON \
+    -DCUDA_rt_LIBRARY=${LIBRT} \
+    ..
+make -j${CPU_COUNT} ${VERBOSE_CM}

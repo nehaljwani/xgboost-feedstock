@@ -1,3 +1,4 @@
+# GPU variant, builds GPU variants of libxgboost and py-xgboost packages
 {% set name = "xgboost" %}
 {% set version = "0.72" %}
 
@@ -18,37 +19,32 @@ source:
     - 0005-Add-ADD_-FLAGS-to-end-of-commandlines.patch
 
 build:
-  skip: true  # [win32 or linux32]
+  skip: true  # [not linux64 and not win64]
 
 requirements:
   build:
-    - {{ compiler('c') }}    # [not win]
-    - {{ compiler('cxx') }}  # [not win]
-    - llvm-openmp >=4.0.1    # [osx]
-    - m2w64-toolchain        # [win]
-    - git                    # [not win]
-    - m2-git                 # [win]
-    - make                   # [not win]
-    - posix                  # [win]
+    - {{ compiler('c') }}
+    - {{ compiler('cxx') }}
+    - cmake
+    - git
+    - make  # [linux]
+  host:
+    - cudatoolkit {{ cudatoolkit }}*
 
 outputs:
   - name: libxgboost
-    script: install-libxgboost.sh
+    script: install-libxgboost.sh   # [linux]
+    script: install-libxgboost.bat  # [win]
     requirements:
       build:
-        - {{ compiler('c') }}    # [not win]
-        - {{ compiler('cxx') }}  # [not win]
-        - llvm-openmp >=4.0.1    # [osx]
-        - m2w64-toolchain        # [win]
-        - git                    # [not win]
-        - m2-git                 # [win]
-        - make                   # [not win]
-        - posix                  # [win]
+        - {{ compiler('c') }}
+        - {{ compiler('cxx') }}
+        - git
+        - make
       host:
-        - llvm-openmp >=4.0.1    # [osx]
+        - cudatoolkit {{ cudatoolkit }}*
       run:
-        - llvm-openmp >=4.0.1    # [osx]
-        - m2w64-gcc-libs         # [win]
+        - cudatoolkit {{ cudatoolkit }}*
 
   - name: _py-xgboost-mutex
     version: 1.0
@@ -56,21 +52,21 @@ outputs:
       string: gpu_0
 
   - name: py-xgboost
-    script: install-py-xgboost.sh
+    script: install-py-xgboost.sh  # [linux]
+    script: install-py-xgboost.sh  # [win]
     requirements:
       build:
-        - {{ compiler('c') }}    # [not win]
-        - {{ compiler('cxx') }}  # [not win]
-        - llvm-openmp >=4.0.1    # [osx]
-        - m2w64-toolchain        # [win]
+        - {{ compiler('c') }}
+        - {{ compiler('cxx') }}
       host:
         - {{ pin_subpackage('libxgboost', exact=True) }}
+        - cudatoolkit {{ cudatoolkit }}*
         - python
         - setuptools
       run:
         - {{ pin_subpackage('libxgboost', exact=True) }}
         - {{ pin_subpackage('_py-xgboost-mutex', exact=True) }}
-        - llvm-openmp >=4.0.1    # [osx]
+        - cudatoolkit {{ cudatoolkit }}*
         - python
         - numpy
         - scipy

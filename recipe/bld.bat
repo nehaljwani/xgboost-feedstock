@@ -1,9 +1,7 @@
-copy "%RECIPE_DIR%\build.sh" .
-set PREFIX=%PREFIX:\=/%
-set SRC_DIR=%SRC_DIR:\=/%
-set MSYSTEM=MINGW%ARCH%
-set MSYS2_PATH_TYPE=inherit
-set CHERE_INVOKING=1
-bash -lc "./build.sh"
+
+mkdir build
+cd build
+cmake .. -G"Visual Studio 14 2015 Win64" -DUSE_CUDA=ON
+cmake --build . --target xgboost --config Release
 if errorlevel 1 exit 1
 exit 0
