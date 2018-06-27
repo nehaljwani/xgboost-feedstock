@@ -51,9 +51,9 @@ outputs:
         - m2w64-gcc-libs         # [win]
 
   - name: _py-xgboost-mutex
-    version: 2.0
+    version: 1.0
     build:
-      string: cpu_0
+      string: gpu_0
 
   - name: py-xgboost
     script: install-py-xgboost.sh
@@ -78,7 +78,7 @@ outputs:
     test:
       script: test-py-xgboost.py
 
-  - name: py-xgboost-cpu
+  - name: py-xgboost-gpu
     requirements:
       host:
         - python
