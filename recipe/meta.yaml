@@ -75,3 +75,6 @@ outputs:
         - test-r-xgboost.r
       commands:
         - Rscript test-r-xgboost.r
+    # present to include cuda version in hash
+    extra:
+      toolkitused: {{ cudatoolkit }}
