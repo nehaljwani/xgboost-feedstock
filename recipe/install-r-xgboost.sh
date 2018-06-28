@@ -10,6 +10,12 @@ unset CXXFLAGS
 . ${BUILD_PREFIX}/etc/conda/activate.d/activate-gcc_linux-64.sh
 . ${BUILD_PREFIX}/etc/conda/activate.d/activate-gxx_linux-64.sh
 
+if [ ${cudatoolkit} == "8.0" ]; then
+    # CXXFLAGS is used to compile C code. -fvisibility-inlines-hidden
+    # is not valid for C which causes an issue when -Werror included
+    CXXFLAGS="${CXXFLAGS//-fvisibility-inlines-hidden/}"
+fi
+
 mkdir -p build
 cd build
 
