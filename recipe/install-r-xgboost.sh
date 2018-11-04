@@ -1,5 +1,4 @@
 #!/bin/bash
-
 . activate "${PREFIX}"
 
 if [[ ${OSTYPE} == msys ]]; then
@@ -10,6 +9,8 @@ if [[ ${OSTYPE} == msys ]]; then
   fi
 fi
 
+set -ex
+env
 pushd ${SRC_DIR}/R-package
   # Remove src/Makevars.win because it says:
   # This file is only used for windows compilation from github
